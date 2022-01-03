@@ -1,0 +1,85 @@
+<HEAD>
+    <style type="text/css">
+     /* link - 아직 클릭하지 않은 경우 */
+     a:link { color: black; text-decoration: none;}	
+     /* visited - 한번 클릭하거나 전에 클릭한적 있을 경우 */
+     a:visited { color: black; text-decoration: none;}	
+     /* hover - 마우스를 해당 링크에 위치했을 경우 */
+     a:hover { color: #006DD7; text-decoration: none;}
+    </style>    
+</HEAD>
+
+{% extends "posts/base.html" %}
+{% load static %}
+{% block content %}
+
+{% for post in posts %}
+    <div class="post-box">
+        <!-- HEADER -->
+        <div class="header">
+            <div class="profile">
+                {% if post.author.profile_photo != None %}
+                    <img src="{{ post.author.profile_photo }}">
+                {% else %}
+                    <img src="{% static 'images/posts/no_avatar.png' %}">
+                {% endif %}
+                <div>
+                    <b>{{ post.author.username }}</b>
+                </div>
+            </div>
+
+            {% if user.id == post.author.id %}
+                <div class="icon">
+                    <a href="{% url 'posts:post_update' post.id %}">        
+                        <i class="fas fa-pencil-alt"></i>
+                    </a> 
+                     
+                    <a href="{% url 'posts:post_delete' post.id %}">
+                        <i class="far fa-trash-alt"></i>
+                    </a>                    
+                </div>
+            {% endif %} 
+        </div>
+
+        <!-- IMAGE -->
+        <img class="post-image" src="{{ post.image }}">
+
+        <!-- IMAGE-BUTTON -->
+        <i class="far fa-heart fa-lg"></i>
+        <i class="fas fa-heart fa-lg"></i>
+
+        <div class="desc-box">
+            <!-- IMAGE-DESCRIPTION -->
+            <div class="image-desc">
+            <b>{{ post.author.username }}</b>
+            {{ post.caption }}
+            </div>
+
+            <!-- COMMENT -->
+            <div class="comment">
+                {% for comment in post.comment_post %}
+                    <div id="comment-{{ comment.id }}">
+                        <b>{{ comment.author.username }}</b>
+                        {{ comment.contents }}
+                        {% if user.id == comment.author.id %}
+                            <a href="{% url 'posts:comment_delete' comment.id %}">
+                                <i class="far fa-trash-alt"></i>
+                            </a>
+                        {% endif %}              
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- COMMENT INPUT -->
+        <div class="comment-input">
+            <form action="{% url 'posts:comment_create' post.id %}" method="post">
+                {% csrf_token %}
+                {{ comment_form }}
+                <input type="submit" value="Post">
+            </form>
+        </div>
+    </div>
+{% endfor %}
+
+{% endblock content %}
